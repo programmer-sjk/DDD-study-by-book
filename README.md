@@ -207,3 +207,8 @@ public interface OrderSummaryDao extends Repository<OrderSummary, String> {
 Specification<OrderSummary> spec = new OrdererIdSpec("user1");
 List<OrderSummary> results = orderSummaryDao.findAll(sepc);
 ```
+
+### 5.5 스펙 조합
+- 스프링 데이터 JPA가 제공하는 스펙 인터페이스는 스펙을 조합하는 메소드를 제공하는데 and, or 메소드이다.
+- and 메소드는 두 스펙을 모두 충족하는 스펙을 생성하고 or 메소드는 둘 중 하나 이상 충족하는 스펙을 생성한다.
+- 이외에도 not() 메소드, null 여부 검사를 위해 where() 메소드를 사용할 수 있다.
