@@ -195,3 +195,15 @@ public interface ProductRepository {
 ### 5.2 검색을 위한 스펙
 - 검색 조건을 다야하게 조합해야 할 때 사용할 수 있는것이 스펙이다. 스펙은 애그리거트가 특정 조건을 충족하는지 검사할 때 사용하는 인터페이스다.
 
+### 5.4 리포지터리/DAO에서 스펙 사용하기
+- 스펙을 충족하는 엔티티를 검색하고 싶다면 findAll() 메소드를 사용하면 된다. findAll 메소드느 스펙 인터페이스를 파라미터로 갖는다.
+```java
+public interface OrderSummaryDao extends Repository<OrderSummary, String> {
+    List<OrderSummary> findAll(Specification<OrderSummary> spec);
+}
+```
+- 이 메서드를 사용하는 쪽 코드는 아래와 같다.
+```java
+Specification<OrderSummary> spec = new OrdererIdSpec("user1");
+List<OrderSummary> results = orderSummaryDao.findAll(sepc);
+```
