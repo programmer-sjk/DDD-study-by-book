@@ -229,3 +229,23 @@ public interface OrderSummaryDao extends Repository<OrderSummary, String> {
 Sort sort = Sort.by("number").ascending();
 List<OrderSummary> results = orderSummaryDao.findByOrdererId("user1", sort);
 ```
+
+### 5.7 페이징 처리하기
+- 전체 데이터 중 일부만 보여주는 페이징 처리는 기본이다. 스프링 데이터 JPA는 이를 위해 Pageable 타입을 이용한다.
+- Sort 타입과 마찬가지로 파라미터로 전달하면 페이징을 자동으로 처리해준다.
+```java
+public interface OrderSummaryDao extends Repository<OrderSummary, String> {
+    List<OrderSummary> findAllOrdererId(String ordererId, Pageable pageable);
+}
+```
+- Pageable은 인터페이스므로 실제 타입 객체는 PageRequest를 사용한다.
+```java
+PageRequest pageRequest = PageRequest.of(1, 10);
+List<OrderSummary> results = orderSummaryDao.findByOrdererId("user1", pageRequest);
+```
+- Page 타입을 사용하면 데이터 목록 뿐만 아니라 전체 개수도 구할 수 있다.
+```java
+public interface OrderSummaryDao extends Repository<OrderSummary, String> {
+  Page<OrderSummary> findAllOrdererId(String ordererId, Pageable pageable);
+}
+```
