@@ -256,3 +256,23 @@ public interface OrderSummaryDao extends Repository<OrderSummary, String> {
 - 사용자와 도메인을 연결해 주는 역할을 하는 것이 응용 영역과 표현 영역이다.
 - 응용 서비스의 메서드가 요구하는 파라미터와 표현 영역이 전달받은 데이터는 일치하지 않을 수 있다. 이런 경우 표현 영역은 응용 영역이 
 요구하는 객체나 데이터를 생성한 뒤 응용 영역의 메소드를 호출한다.
+
+### 6.2 응용 서비스의 역할
+- 응용 서비스의 주요 역할은 도메인 객체를 사용해서 사용자의 요청을 처리하는 것으로 표현 영역의 입장에서 보면 응용 서비스는
+도메인 영역과 표현 영역을 연결해주는 창구 역할을 한다.
+- 응용 서비스가 복잡하다면 응용 서비스에서 도메인 로직의 일부를 구현할 가능성이 높다. 응용 서비스가 도메인 로직을 일부 구현하면
+코드 중복, 로직 분산 등 코드 품질에 안 좋은 역할을 미친다.
+- 도메인의 상태나 값을 체크하는 것은 도메인의 핵심 로직이기 때문에 다음 코드처럼 응용 서비스에서 이 로직을 구현하면 안 된다.
+```java
+public class ChangePasswordService {
+    public void changePassword(String memberId, String oldPw, String newPw) {
+        Member member = memberRepository.findById(memberId);
+        if (!passwordEncoder.matched(oldPw, newPw)) {
+            throw new IllegalArgument();
+        }
+        member.changePassword();
+    }
+}
+```
+- 도메인 로직을 도메인 영역과 응용 서비스에 분산해서 구현하면 여러 응용 서비스에서 동일한 도메인 로직을 구현할 가능성이 높아진다.
+애초에 도메인 영역에 암호확인 기능을 구현하면 응용 서비스는 그 기능을 사용하기만 하면 된다.
