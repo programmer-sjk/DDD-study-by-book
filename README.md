@@ -249,3 +249,10 @@ public interface OrderSummaryDao extends Repository<OrderSummary, String> {
   Page<OrderSummary> findAllOrdererId(String ordererId, Pageable pageable);
 }
 ```
+
+## 6장. 응용 서비스와 표현영역
+
+### 6.1 표현 영역과 응용 영역
+- 사용자와 도메인을 연결해 주는 역할을 하는 것이 응용 영역과 표현 영역이다.
+- 응용 서비스의 메서드가 요구하는 파라미터와 표현 영역이 전달받은 데이터는 일치하지 않을 수 있다. 이런 경우 표현 영역은 응용 영역이 
+요구하는 객체나 데이터를 생성한 뒤 응용 영역의 메소드를 호출한다.
