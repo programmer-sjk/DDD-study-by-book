@@ -310,3 +310,24 @@ public class ChangePasswordService {
 - 실무에선 주로 표현 영역과 응용 서비스가 값 검사를 나눠서 수행한다.
   - 표현 영역은 필수 값, 값의 형식, 범위 등을 검증
   - 응용 서비스는 데이터의 존재 유무와 같은 논리적 오류를 검증
+
+## 6.7 조회 전용 기능과 응용 서비스
+- 서비스에서 아래와 같이 단순히 조회 전용 기능을 리턴한다면 트랜잭션이 필요하지도 않다. 이런 경우 굳이 서비스를 만들 필요 없이
+**표현 영역에서 바로 조회 전용 기능을 사용**해도 **문제가 없다**.
+```java
+public class AService {
+    public List<A> getAList(String id) {
+        return aDao.selectAll(id);
+  }
+}
+
+public class AController {
+  @RequestMapping("/a")
+  public List<A> getAList() {
+    // id 구함
+    return aDao.selectAll(id);
+  }
+}
+```
+- 응용 서비스를 항상 만들었던 개발자는 컨트롤러에서 응용 서비스 없이 조회 전용 기능에 접근하는게 이상하게 느껴질 수 있다.
+하지만 응용 서비스가 사용자 요청 기능을 실행하는데 별다른 기여를 하지 못한다면 굳이 서비스를 만들지 않아도 된다.
