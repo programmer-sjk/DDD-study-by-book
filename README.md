@@ -376,7 +376,7 @@ public class OrderService {
     private DiscountCalculationService discountCalculationService;
     
     @Transactional
-  public Order createOrder() {
+    public Order createOrder() {
       ...
     }
 }
@@ -398,3 +398,12 @@ public class OrderService {
 ### 7.2.3 도메인 서비스의 패키지 위치
 - 도메인 서비스는 도메인 로직을 표한하므로 도메인과 같은 패키지에 위치한다. 만약 이를 구분하고 싶다면
 domain 패키지 하위에 domain.model, domain.service, domain.repository와 같이 하위 패키지를 구분해도 된다.
+
+## 8. 애그리거트 트랜잭션 관리
+
+### 8.1 애그리거트와 트랜잭션
+- 운영자와 고객이 동시에 한 주문 애그리거트를 수정하면 애그리거트의 일관성이 깨지게 된다.
+- 일관성을 유지하려면 아래 두가지 중 하나를 해야 한다.
+  - 운영자가 배송지 정보를 조회하고 상태를 변경하는 동안 고객이 애그리거트를 수정하지 못하도록 한다.
+  - 운영자가 배송지 정보를 조회한 이후에 고객이 정보를 변경하면 운영자가 애그리거트를 다시 조회한 뒤 수정한다.
+- 위 두가지는 애그리거트의 트랜잭션과 관련이 있다. DBMS가 지원하는 트랜잭션과 함께 애그리거트를 위한 추가적인 트랜잭션 기법이 필요하다.
