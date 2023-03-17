@@ -343,3 +343,49 @@ public class AController {
   결제 금액 계산 책임이 주문 애그리거트가 가지고 있다는 이유로 주문 애그리거트의 코드를 수정해야 한다.
 - 이렇게 한 애그리거트에 넣기 애매한 기능을 억지로 특정 애그리거트에 구현하면 안된다. 억지로 구현하면 애그리거트는 코드가 길어지고
 외부와 의존성이 높아지며 복잡해지게 된다.
+
+## 7.2 도메인 서비스
+- 도메인 서비스는 도메인 영역에 위치한 도메인 로직을 표현할 때 사용하는데 보통 아래 상황에 사용한다.
+  - 여러 애그리거트가 필요한 계산로직이나 한 애그리거트에 넣기에는 다소 복잡한 계산 로직
+  - 외부 시스템 연동이 필요한 도메인 로직
+
+### 7.2.1 계산 로직과 도메인 서비스
+
+- 애그리거트에 넣기 애매한 도메인 개념을 애그리거트에 억지로 넣기보다는 도메인 서비스를 이용해서 명시적으로 드러내면 된다.
+- 엔티티(도메인, 애그리거트)와 도메인 서비스를 비교할 때 다른점은 도메인 서비스는 상태없이 로직만 구현한다는 점이다.
+- 할인 금액 계산 로직을 위한 도메인 서비스는 아래와 같이 도메인의 의미가 드러나는 용어를 사용한다.
+```java
+public class DiscountCalculationService {
+    public Money calculateDiscountAmounts(List<OrderLine> orderLines, List<Coupon> coupons, MemberGrade grade) {
+        // 계산 로직..
+    }
+}
+```
+- 아래와 같이 애그리거트가 도메인 서비스를 사용한다.
+```java
+public class Order {
+    public void calculate(DiscountCalculationService discountCalculationService, MemberGrade grade) {
+        Money totalMoney = getTotalMoney();
+        discountCalculationService.calculateDiscountAmounts(..);
+    }
+}
+```
+- 애그리거트 객체에 도메인 서비스를 전달하는 것은 응용 서비스 책임이다.
+```java
+public class OrderService {
+    private DiscountCalculationService discountCalculationService;
+    
+    @Transactional
+  public Order createOrder() {
+      ...
+    }
+}
+```
+- **도메인 서비스 객체를 애그리거트에 주입하지 않기**
+  - 애그리거트에 도메인 서비스 객체를 파라미터로 전달한다는 것은 애그리거트가 도메인 서비스에 의존한다는 뜻이다.
+  - 의존성을 줄이기 위해 DI를 생각할 수 있겠지만 이럴 경우 데이터와 메소드를 이용해 하나의 모델을 표현하는 도메인이 불필요한 필드를
+  가지게 되므로 도메인과 도메인 서비스의 관계는 의존성 주입을하지 않는게 좋다.
+- 반대로 도메인 서비스의 기능을 실행할 때 애그리거트가 전달되는 경우도 있다.
+- 도메인 서비스는 도메인 로직을 수행하지 응용 로직을 수행하진 않는다.
+  - 특정 기능이 응용 서비스인지 도메인 서비스인지 감을 잡기 어려운 경우 로직이 애그리거트의 상태를 변경하거나 상태 값을 계산하는지 살펴보자.
+  - 예를 들어 계좌 이체 기능은 계좌 애그리거트의 상태를 변경하고 결제 금액 로직은 주문 애그리거트의 금액을 계산한다. 이 둘은 도메인 로직이다.
