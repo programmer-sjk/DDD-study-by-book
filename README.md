@@ -591,6 +591,40 @@ public class Events {
 }
 ```
 
+#### 10.3.3 이벤트 발생과 이벤트 핸들러
+- 이벤트를 발생시킬 코드는 Events.raise() 메소드를 사용한다. 
+```java
+public class Order {
+    public void changeShippingInfo(ShppingInfo newShppingInfo) {
+        verifyNotYetShipped();
+        updateShippingInfo(newShppingInfo);
+        Events.raise(new ShippingInfoChangedEvent(number, newShppingInfo));
+    }
+}
+```
+- 이벤트를 처리할 핸들러는 @EventListener 애너테이션을 사용해서 구현한다.
+```java
+@Service
+public class OrderCanceledEventHandler {
+    private RefundService refundService;
+    
+    public OrderCanceledEventHandler(RefundService refundService) {
+        this.refundService = refundService;
+    }
+    
+    @EventListener(OrderCanceledEvent.class)
+  public void handle(OrderCanceledEvent event) {
+        refundService.refund(event.getOrderNumber());
+    }
+}
+```
+
+#### 10.3.4 흐름 정리
+- 도메인 기능이 실행 -> 도메인에서 Events.raise() 를 사용해 이벤트 발생 -> 스프링의 ApplicationEventPublisher를 통해 이벤트 출판
+-> ApplicationEventPublisher는 @EventListener(이벤트타입.class) 에너테이션이 붙은 메서드를 찾아 실행한다.
+
+
+
 
 
 
