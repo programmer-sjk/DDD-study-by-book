@@ -536,7 +536,7 @@ public class Order {
 - 이벤트는 발생한 이벤트 정보를 담는데 보통 `이벤트의 종류, 이벤트 발생시간, 추가데이터`를 포함한다.
 - 배송지 변경할 때 발생하는 이벤트를 생각해보자. 이 이벤트는 다음과 같이 작성할 수 있다.
 ```java
-public class ShppingInfoChangedEvent {
+public class ShippingInfoChangedEvent {
     private String orderNumber;
     private long timestamp;
     private ShppingInfo newShippingInfo;
@@ -565,12 +565,31 @@ public class Order {
 #### 10.2.4 이벤트 장점
 - 이벤트를 사용하면 서로 다른 도메인 로직이 섞이는 것을 방지할 수 있다. 위에 이벤트를 사용하는 `changeShippingInfo` 함수를 보면
 더이상 구매취소에 환불 로직이 없는 것을 볼 수 있다.
-- 이벤트 핸들러를 사용하면 기능 확장도 용이하다. 구매 취쇠 환불과 함께 이메일을 보내고 싶다면 이메일 발송을 처리하는 핸들러를 구현하면 된다.
+- 이벤트 핸들러를 사용하면 기능 확장도 용이하다. 구매 취소시 환불과 함께 이메일을 보내고 싶다면 이메일 발송을 처리하는 핸들러를 구현하면 된다.
 기능은 확장해도 구매 취소 로직을 수정할 필요가 없다.
 
+### 10.3 이벤트, 핸들러, 디스패처 구현
+- 스프링이 제공하는 ApplicationEventPublisher 를 이용해 구현을 해보자.
 
+#### 10.3.1 이벤트 클래스
+- 이벤트 자체를 위한 상위 타입은 존재하지 않기 때문에 원하는 클래스를 이벤트로 사용한다.
+- 이름을 결정할 떄 과거시제를 사용하는 것만 유의하자. OrderCanceledEvent로 정해도 되고 OrderCanceled로 정해도 된다.
 
-
+#### 10.3.2 Events 클래스와 ApplicationEventPublisher
+- 이벤트 발생과 출판을 위해 스프링이 제공하는 ApplicationEventPublisher를 사용해보자.
+```java
+public class Events {
+    private static ApplicationEventPublisher publisher;
+    
+    static void setPublisher(ApplicationEventPublisher publisher) {
+        Events.publisher = publisher;
+    }
+    
+    public static void raise(Object event) {
+        publisher.publishEvent(event);
+    }
+}
+```
 
 
 
