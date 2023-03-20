@@ -623,8 +623,28 @@ public class OrderCanceledEventHandler {
 - 도메인 기능이 실행 -> 도메인에서 Events.raise() 를 사용해 이벤트 발생 -> 스프링의 ApplicationEventPublisher를 통해 이벤트 출판
 -> ApplicationEventPublisher는 @EventListener(이벤트타입.class) 에너테이션이 붙은 메서드를 찾아 실행한다.
 
+### 10.4 동기 이벤트 처리 문제
+- 이벤트를 사용해서 강결합 문제는 해결했지만 외부서비스에 영향을 받는 문제가 있다.
+- 아래 코드에서 `refundService.refund`가 외부 환불 서비스와 연동된다고 가정해보자.
+```text
+@Transactional
+public void cancel(OrderNo orderNo) {
+    Order order = findOrder(orderNo);
+    order.cancel() // 내부에서 Event 발생 
+}
 
-
+@Service
+public class OrderCanceledEventHandler {
+  @EventListener(OrderCanceledEvent.class)
+  public void handle(OrderCanceledEvent event) {
+    refundService.refund(event.getOrderNumber());
+  }
+}
+```
+- 만약 외부 환불 기능이 느려지면 cancel 메소드도 함께 느려진다. 이것은 외부 시스템의 성능저하가 내 시스템에 영향을 미치는 상황이다.
+- 성능 저하뿐 아니라 `refundService.refund`에서 익셉션이 발생하면 롤백을 해야하는지도 문제다.
+- 외부 시스템과 연동을 동기로 처리할 때 발생하는 성능과 트랜잭션 문제를 해소하는 방법은 **이벤트를 비동기로 처리**하거나 **이벤트와 트래잭션을
+연계**하는 방법이 있다.
 
 
 
